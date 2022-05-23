@@ -74,18 +74,27 @@ class Board:
         """
 
 
-
 class Dot:
+    _x, _y = None, None
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return f"{self.x}, {self.y}"
+
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        return self._x == other._x and self._y == other._y
 
     @property
     def cord(self):
         return self.x, self.y
+
+    @cord.setter  # todo поправить реализацию setter
+    def cord(self, x, y):
+        self._x = x
+        self._y = y
 
 
 """Внешняя логика игры — пользовательский интерфейс, искусственный интеллект, игровой контроллер, который считает побитые корабли.

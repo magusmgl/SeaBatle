@@ -1,2 +1,2 @@
-# SeaBatle
+# SeaBattle
 Sea Battle game

@@ -1,22 +1,66 @@
 """
 Внутренняя логика игры — корабли, игровая доска и вся логика связанная с ней
 """
+from SeaBatle.my_Exception import ShipLengthException, ShipLivesException, ShipDirectionException
+
+
+class Dot:
+    _x, _y = None, None
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        return self._x == other._x and self._y == other._y
+
+    @property
+    def cord(self):
+        return self.x, self.y
 
 
 class Ship:
     "в конструктор передаём информацию о его положении на доске\
     кораблей: 1 корабль на 3 клетки, 2 корабля на 2 клетки, 4 корабля на одну клетку."
 
-    def __init__(self, length, start_dot, ship_direction, number_of_lives):
-        self.length = length
-        self.start_dot = start_dot
-        self.ship_direction = ship_direction
-        self.number_of_lives = number_of_lives
+    def __init__(self, length_ship: int, start_dot: object, ship_direction: str, number_of_lives: int):
+        try:
+            self.__validate_length_ship(length_ship)
+            self.__validate_num_lives(number_of_lives)
+            self.__validate_direction_ship(ship_direction)
+        except ShipLengthException as e:
+            print(e)
+        except ShipLivesException as e:
+            print(e)
+        except ShipDirectionException as e:
+            print(e)
+        else:
+            self.length_ship = length_ship
+            self.start_dot = start_dot
+            self.ship_direction = ship_direction
+            self.number_of_lives = number_of_lives
 
-    def dot(self):
+    @classmethod
+    def __validate_length_ship(cls, arg):
+        if not isinstance(arg, int) or not 1 <= arg <= 3:
+            raise ShipLengthException(arg)
+
+    @classmethod
+    def __validate_num_lives(cls, arg):
+        if not isinstance(arg, int) or not 0 <= arg <= 3:
+            raise ShipLivesException(arg)
+
+    @classmethod
+    def __validate_direction_ship(cls, arg: str):
+        if arg.lower() != "r" or arg.lower() != "h":
+            raise ShipDirectionException(arg)
+
+    def dots(self):
         """Возвращает список всех точек коробля"""
         if self.length == 1:
             return self.start_dot
+        else:
+            pass
 
 
 class Board:
@@ -72,37 +116,3 @@ class Board:
          и в использованную точку, нужно выбрасывать исключения).
         :return:
         """
-
-
-class Dot:
-    _x, _y = None, None
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __str__(self):
-        return f"{self.x}, {self.y}"
-
-    def __eq__(self, other):
-        return self._x == other._x and self._y == other._y
-
-    @property
-    def cord(self):
-        return self.x, self.y
-
-    @cord.setter  # todo поправить реализацию setter
-    def cord(self, x, y):
-        self._x = x
-        self._y = y
-
-
-"""Внешняя логика игры — пользовательский интерфейс, искусственный интеллект, игровой контроллер, который считает побитые корабли.
-
-1. В начале имеет смысл написать классы исключений, которые будет использовать наша программа. Например, когда игрок пытается выстрелить
- в клетку за пределами поля, во внутренней логике должно выбрасываться соответствующее исключение BoardOutException,
-  а потом отлавливаться во внешней логике, выводя сообщение об этой ошибке пользователю.
-2.Далее нужно реализовать класс Dot — класс точек на поле. Каждая точка описывается параметрами:
-
-
-"""

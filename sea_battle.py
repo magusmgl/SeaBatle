@@ -42,9 +42,9 @@ class Ship:
 
     def __init__(self, length_ship: int, start_dot: object, ship_direction: str, number_of_lives: int):
         try:
-            self.__validate_length_ship(length_ship)
-            self.__validate_num_lives(number_of_lives)
-            self.__validate_direction_ship(ship_direction)
+            self.validate_length_ship(length_ship)
+            self.validate_num_lives(number_of_lives)
+            self.validate_direction_ship(ship_direction)
         except ShipLengthException as e:
             print(e)
         except ShipLivesException as e:
@@ -63,21 +63,25 @@ class Ship:
             raise ShipLengthException(arg)
 
     @classmethod
-    def __validate_num_lives(cls, arg):
+    def validate_num_lives(cls, arg):
         if not isinstance(arg, int) or not 0 <= arg <= 3:
             raise ShipLivesException(arg)
 
     @classmethod
-    def __validate_direction_ship(cls, arg: str):
-        if arg.lower() != "r" or arg.lower() != "h":
+    def validate_direction_ship(cls, arg: str):
+        if arg != "v" and arg != "h":
             raise ShipDirectionException(arg)
 
+    @property
     def dots(self):
         """Возвращает список всех точек коробля"""
-        if self.length == 1:
-            return self.start_dot
-        else:
-            pass
+        list_of_dots = []
+        for i in range(self.length_ship):
+            if self.ship_direction == "h":
+                list_of_dots.append((self.start_dot.x + i, self.start_dot.y))
+            else:
+                list_of_dots.append((self.start_dot.x, self.start_dot.y + i))
+        return list_of_dots
 
 
 class Board:

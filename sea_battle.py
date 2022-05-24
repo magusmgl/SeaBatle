@@ -1,22 +1,39 @@
-"""
-Внутренняя логика игры — корабли, игровая доска и вся логика связанная с ней
-"""
-from SeaBatle.my_Exception import ShipLengthException, ShipLivesException, ShipDirectionException
+# Внутренняя логика игры — корабли, игровая доска и вся логика связанная с ней
+from SeaBatle.my_Exception import ShipLengthException, ShipLivesException, ShipDirectionException, DortCordsException
+
+
+class CheckCoordDort:
+    # data descriptor для класса Dot
+    @classmethod
+    def validate_coord(cls, value):
+        if not isinstance(value, int) or not 0 <= value <= 5:
+            raise DortCordsException(value)
+
+    def __set_name__(self, owner, name):
+        self.name = '_' + name
+
+    def __get__(self, instance, owner):
+        return getattr(instance, self.name)
+
+    def __set__(self, instance, value):
+        try:
+            self.validate_coord(value)
+        except DortCordsException as e:
+            print(e)
+        else:
+            setattr(instance, self.name, value)
 
 
 class Dot:
-    _x, _y = None, None
+    x = CheckCoordDort()
+    y = CheckCoordDort()
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
     def __eq__(self, other):
-        return self._x == other._x and self._y == other._y
-
-    @property
-    def cord(self):
-        return self.x, self.y
+        return self.x == other.x and self.y == other.y
 
 
 class Ship:
@@ -41,7 +58,7 @@ class Ship:
             self.number_of_lives = number_of_lives
 
     @classmethod
-    def __validate_length_ship(cls, arg):
+    def validate_length_ship(cls, arg):
         if not isinstance(arg, int) or not 1 <= arg <= 3:
             raise ShipLengthException(arg)
 

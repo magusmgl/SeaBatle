@@ -12,6 +12,18 @@ class BoardOutException(Exception):
          находится за пределами  игрового поля."
 
 
+class DortCordsException(Exception):
+    """
+
+    """
+
+    def __init__(self, *args):
+        self.message = args[0] if args else None
+
+    def __str__(self):
+        return f"Ошибка: '{self.message}' координата должна быть число от 0 до 5."
+
+
 class ShipParamException(Exception):
     def __init__(self, *args):
         self.message = args[0] if args else None
@@ -38,4 +50,4 @@ class ShipDirectionException(ShipParamException):
     """
 
     def __str__(self):
-        return f"Ошибка: Введенное положение корабля '{self.message}' должно принимать значение 'r'/'h'."
+        return f"Ошибка: Введенное положение корабля '{self.message}' должно принимать значение 'v'/'h'."

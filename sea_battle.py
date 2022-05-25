@@ -1,5 +1,5 @@
 # Внутренняя логика игры — корабли, игровая доска и вся логика связанная с ней
-from SeaBatle.my_Exception import ShipLengthException, ShipLivesException, ShipDirectionException, DortCordsException
+from SeaBatle.my_Exception import *
 
 
 class CheckCoordDort:
@@ -77,7 +77,7 @@ class Ship:
         """Возвращает список всех точек коробля"""
         list_of_dots = []
         for i in range(self.length_ship):
-            if self.ship_direction == "h":
+            if self.ship_direction == "v":
                 list_of_dots.append((self.start_dot.x + i, self.start_dot.y))
             else:
                 list_of_dots.append((self.start_dot.x, self.start_dot.y + i))
@@ -85,46 +85,33 @@ class Ship:
 
 
 class Board:
-    def __init__(self, ship_list, number_of_live_ships, hid=False):
+    def __init__(self, list_of_ships: list, number_of_live_ships, hid=False):
         self.board = [[" O "] * 6 for _ in range(6)]
-        self.ship_list = ship_list
-        self.hid = hid
+        self.list_of_ships = list_of_ships
         self.number_of_live_ships = number_of_live_ships
+        self.hid = hid
 
-    def __str__(self):
-        print("  | 1 | 2 | 3 | 4 | 5 | 6|")
-        print("-" * 25)
-        for i, row in enumerate(self.board):
-            print(f"{i}|{'|'.join(row)}|")
-            print("-" * 25)
-
-    @property
-    def ship_list(self):
-        return []
-
-    @ship_list.setter
-    def ship_list(self, ship):
-        self.ship_list.append(ship)
-
-    @property
-    def number_of_live_ships(self):
-        return self.number_of_live_ships
-
-    @number_of_live_ships.setter
-    def number_of_live_ships(self):
-        return len(self.ship_list)
-
-    def add_ship(self, ship):
+    def add_ship(self, ship: object):
         """ ставит корабль на доску (если ставить не получается, выбрасываем исключения)"""
-        pass
+        for x, y in ship.dots:
+            if any([x > len(self.board) - 1, y > len(self.board[0]) - 1]):
+                raise BoardOutException(x, y)
+            if self.board[x][y] != " O ":
+                raise BoardOccupiedCage(x, y)
+            self.board[x][y] = " ■ "
 
     def contour(self):
         """который обводит корабль по контуру. Он будет полезен и в ходе самой игры,
         и в при расстановке кораблей (помечает соседние точки, где корабля по правилам быть не может)."""
 
-    def display_board(self, hid):
+    def display_board(self):
         """выводит доску в консоль в зависимости от параметра hid"""
-        pass
+        print("  | 1 | 2 | 3 | 4 | 5 | 6|")
+        print("-" * 25)
+        if self.hid == False:
+            for i, row in enumerate(self.board):
+                print(f"{i}|{'|'.join(row)}|")
+                print("-" * 25)
 
     def out(self, dort):
         """для точки (объекта класса Dot) возвращает True,
@@ -137,3 +124,17 @@ class Board:
          и в использованную точку, нужно выбрасывать исключения).
         :return:
         """
+
+# a1 = Dot(1, 1)
+# sh_1 = Ship(3, a1, "v", 3)
+# a2 = Dot(4, 3)
+# sh_2 = Ship(2, a2, "h", 2)
+# print(sh_2.dots)
+# sh_3 = Ship(3, a1, "v", 3)
+# list_ship = [sh_1, sh_2, sh_3]
+# board_1 = Board(list_ship, 1, False)
+#
+# board_1.add_ship(sh_1)
+# board_1.add_ship(sh_2)
+# board_1.add_ship(sh_3)
+# board_1.display_board()

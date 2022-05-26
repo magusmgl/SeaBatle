@@ -6,7 +6,8 @@ class CheckCoordDort:
     # data descriptor для класса Dot
     @classmethod
     def validate_coord(cls, value):
-        if not isinstance(value, int) or not 0 <= value <= 5:
+        # if not isinstance(value, int) or not 0 <= value <= 5:
+        if not isinstance(value, int):
             raise DortCordsException(value)
 
     def __set_name__(self, owner, name):
@@ -32,19 +33,18 @@ class Dot:
         return self.x == other.x and self.y == other.y
 
 
-
 class Ship:
     "в конструктор передаём информацию о его положении на доске\
     кораблей: 1 корабль на 3 клетки, 2 корабля на 2 клетки, 4 корабля на одну клетку."
 
-    def __init__(self, length_ship: int, start_dot: object, ship_direction: str, number_of_lives: int):
-        self.validate_length_ship(length_ship)
+    def __init__(self, length: int, start_dot: object, direction: str, number_of_lives: int):
+        self.validate_length_ship(length)
         self.validate_num_lives(number_of_lives)
-        self.validate_direction_ship(ship_direction)
+        self.validate_direction_ship(direction)
 
-        self.length_ship = length_ship
+        self.length = length
         self.start_dot = start_dot
-        self.ship_direction = ship_direction
+        self.direction = direction
         self.number_of_lives = number_of_lives
 
     @classmethod
@@ -69,15 +69,15 @@ class Ship:
     def dots(self) -> list:
         """Возвращает список всех точек коробля"""
         list_of_dots = []
-        for i in range(self.length_ship):
-            if self.ship_direction == "v":
+        for i in range(self.length):
+            if self.direction == "v":
                 list_of_dots.append(Dot(self.start_dot.x + i, self.start_dot.y))
             else:
                 list_of_dots.append(Dot(self.start_dot.x, self.start_dot.y + i))
         return list_of_dots
 
 
-class Board:
+class Board(Dot):
     _hid = None
 
     def __init__(self, list_of_ships: list, number_of_live_ships: int, hid: bool):
@@ -104,9 +104,34 @@ class Board:
                 raise BoardOccupiedCage(dot.x, dot.y)
             self.board[dot.x][dot.y] = " ■ "
 
-    def contour(self):
-        """который обводит корабль по контуру. Он будет полезен и в ходе самой игры,
+    def contour(self, ship: object):
+        """Который обводит корабль по контуру. Он будет полезен и в ходе самой игры,
         и в при расстановке кораблей (помечает соседние точки, где корабля по правилам быть не может)."""
+        x_0 = ship.start_dot.x - 1
+        y_0 = ship.start_dot.y - 1
+
+        if ship.length == 1:
+            for i in range(3):
+                for j in range(3):
+                    curr_dot = Dot(i + x_0, j + y_0)
+                    if self.out(curr_dot) and curr_dot not in ship.dots:
+                        self.board[x_0 + i][y_0 + j] = " - "
+
+        if ship.length == 2:
+            k, m = (4, 3) if ship.direction == "v" else (3, 4)
+            for i in range(k):
+                for j in range(m):
+                    curr_dot = Dot(i + x_0, j + y_0)
+                    if self.out(curr_dot) and curr_dot not in ship.dots:
+                        self.board[x_0 + i][y_0 + j] = " - "
+
+        if ship.length == 3:
+            k, m = (5, 3) if ship.direction == "v" else (3, 5)
+            for i in range(k):
+                for j in range(m):
+                    curr_dot = Dot(i + x_0, j + y_0)
+                    if self.out(curr_dot) and curr_dot not in ship.dots:
+                        self.board[x_0 + i][y_0 + j] = " - "
 
     def display_board(self):
         """ Выводит доску в консоль в зависимости от параметра hid"""
@@ -134,16 +159,28 @@ class Board:
         :return:
         """
 
-# a1 = Dot(1, 1)
-# sh_1 = Ship(3, a1, "v", 3)
-# a2 = Dot(4, 3)
-# sh_2 = Ship(2, a2, "h", 2)
-# print(sh_2.dots)
-# sh_3 = Ship(3, a1, "v", 3)
-# list_ship = [sh_1, sh_2, sh_3]
-# board_1 = Board(list_ship, 1, False)
+
 #
-# board_1.add_ship(sh_1)
-# board_1.add_ship(sh_2)
-# board_1.add_ship(sh_3)
-# board_1.display_board()
+# кораблей: 1 корабль на 3 клетки, 2 корабля на 2 клетки, 4 корабля на одну клетку."
+try:
+    sh_one_cage_1 = Ship(1, Dot(0, 0), "h", 1)
+    sh_one_cage_2 = Ship(1, Dot(0, 5), "h", 1)
+    sh_one_cage_3 = Ship(1, Dot(5, 0), "h", 1)
+    sh_one_cage_4 = Ship(1, Dot(5, 4), "h", 1)
+
+    sh_two_cage_1 = Ship(2, Dot(0, 2), "v", 2)
+    sh_two_cage_2 = Ship(2, Dot(2, 5), "v", 2)
+
+    sh_three_cage_1 = Ship(3, Dot(3, 1), "h", 3)
+
+    list_ship = [sh_one_cage_1, sh_one_cage_2, sh_one_cage_3, sh_one_cage_4, sh_two_cage_1, sh_two_cage_2,
+                 sh_three_cage_1]
+
+    test_board = Board(list_ship, 1, False)
+    for ship in list_ship:
+        test_board.contour(ship)
+        test_board.add_ship(ship)
+except Exception as e:
+    print(e)
+else:
+    test_board.display_board()

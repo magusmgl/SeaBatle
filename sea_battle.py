@@ -34,8 +34,7 @@ class Dot:
 
 
 class Ship:
-    "в конструктор передаём информацию о его положении на доске\
-    кораблей: 1 корабль на 3 клетки, 2 корабля на 2 клетки, 4 корабля на одну клетку."
+    """"""
 
     def __init__(self, length: int, start_dot: object, direction: str, number_of_lives: int):
         self.validate_length_ship(length)
@@ -95,8 +94,8 @@ class Board(Dot):
         if isinstance(value, bool):
             self._hid = value
 
-    def add_ship(self, ship: object):
-        """Ставит корабль на доску (если ставить не получается, выбрасываем исключения)"""
+    def add_ship(self, ship: object) -> None:
+        """Ставит корабль на доску (если ставить не получается, выбрасывает исключения)"""
         for dot in ship.dots:
             if not self.out(dot):
                 raise BoardOutException(dot.x, dot.y)
@@ -104,9 +103,8 @@ class Board(Dot):
                 raise BoardOccupiedCage(dot.x, dot.y)
             self.board[dot.x][dot.y] = " ■ "
 
-    def contour(self, ship: object):
-        """Который обводит корабль по контуру. Он будет полезен и в ходе самой игры,
-        и в при расстановке кораблей (помечает соседние точки, где корабля по правилам быть не может)."""
+    def contour(self, ship: object) -> None:
+        """Обводит корабль по контуру"""
         x_0 = ship.start_dot.x - 1
         y_0 = ship.start_dot.y - 1
 
@@ -133,7 +131,7 @@ class Board(Dot):
                     if self.out(curr_dot) and curr_dot not in ship.dots:
                         self.board[x_0 + i][y_0 + j] = " - "
 
-    def display_board(self):
+    def display_board(self) -> None:
         """ Выводит доску в консоль в зависимости от параметра hid"""
         print(" | 0 | 1 | 2 | 3 | 4 | 5 |")
         print("-" * 25)
@@ -146,18 +144,26 @@ class Board(Dot):
                 print(f"{i}|{'|'.join(row)}|")
                 print("-" * 25)
 
-    def out(self, dot: object):
-        """для точки (объекта класса Dot) возвращает True,
+    def out(self, dot: object) -> bool:
+        """Для точки (объекта класса Dot) возвращает True,
         если точка выходит за пределы поля, и False, если не выходит."""
         return all([0 <= dot.x < len(self.board), \
                     0 <= dot.y < len(self.board[0])])
 
-    def shot(self):
+    def shot(self, dot: object):
         """
-        делает выстрел по доске (если есть попытка выстрелить за пределы
+        Делает выстрел по доске (если есть попытка выстрелить за пределы
          и в использованную точку, нужно выбрасывать исключения).
         :return:
         """
+        if not self.out(dot):
+            raise BoardOutException(dot.x, dot.y)
+        if self.board[dot.x][dot.y] == " T " or self.board[dot.x][dot.y] == " X ":
+            raise BoardShotUsedCage(dot.x, dot.y)
+        if self.board[dot.x][dot.y] == " - " or self.board[dot.x][dot.y] == " O ":
+            self.board[dot.x][dot.y] = " T "
+        if self.board[dot.x][dot.y] == " ■ ":
+            self.board[dot.x][dot.y] = " X "
 
 
 #
@@ -177,10 +183,15 @@ try:
                  sh_three_cage_1]
 
     test_board = Board(list_ship, 1, False)
+
     for ship in list_ship:
         test_board.contour(ship)
         test_board.add_ship(ship)
 except Exception as e:
     print(e)
 else:
+    # test_board.display_board()
+    test_board.shot(Dot(3, 1))
+    test_board.shot(Dot(5, 1))
+    test_board.shot(Dot(5, 2))
     test_board.display_board()

@@ -15,6 +15,9 @@ class BoardOccupiedCage(BoardException):
     def __str__(self):
         return f"Точка с координатами ({self.message[0]},{self.message[1]}) занята."
 
+class BoardShotUsedCage(BoardException):
+    def __str__(self):
+        return f"В точка с координатами ({self.message[0]},{self.message[1]}) уже был сделан выстрел."
 
 class DortCordsException(Exception):
     """ """

@@ -6,7 +6,6 @@ class CheckCoordDort:
     # data descriptor для класса Dot
     @classmethod
     def validate_coord(cls, value):
-        # if not isinstance(value, int) or not 0 <= value <= 5:
         if not isinstance(value, int):
             raise DortCordsException(value)
 
@@ -35,6 +34,9 @@ class Dot:
 
 class Ship:
     """"""
+    MAX_NUM_SHIP_CELLS = 3
+    MIN_NUM_SHIP_CELLS = 1
+    MAX_NUM_SHIP_LIVES = 3
 
     def __init__(self, length: int, start_dot: object, direction: str, number_of_lives: int):
         self.validate_length_ship(length)
@@ -48,14 +50,14 @@ class Ship:
 
     @classmethod
     def validate_length_ship(cls, value: int) -> None:
-        """Проверяет значение длины корaбля (число от 1 до 3)"""
-        if not isinstance(value, int) or not 1 <= value <= 3:
+        """Проверяет значение длины корaбля (число от min до max)"""
+        if not isinstance(value, int) or not cls.MIN_NUM_SHIP_CELLS <= value <= cls.MAX_NUM_SHIP_CELLS:
             raise ShipLengthException(value)
 
     @classmethod
     def validate_num_lives(cls, value: int) -> None:
-        """Проверяет значение жизней коробля (число от 0 до 3)"""
-        if not isinstance(value, int) or not 0 <= value <= 3:
+        """Проверяет значение жизней коробля (число от 0 до max)"""
+        if not isinstance(value, int) or not 0 <= value <= cls.MAX_NUM_SHIP_LIVES:
             raise ShipLivesException(value)
 
     @classmethod
@@ -74,6 +76,15 @@ class Ship:
             else:
                 list_of_dots.append(Dot(self.start_dot.x, self.start_dot.y + i))
         return list_of_dots
+
+    @property
+    def name(self):
+        if self.length == 3:
+            self.name = "Линкор"
+        if self.length == 2:
+            self.name = "Крейсер"
+        if self.length == 1:
+            self.name = "Подводная лодка"
 
 
 class Board(Dot):
@@ -109,27 +120,19 @@ class Board(Dot):
         y_0 = ship.start_dot.y - 1
 
         if ship.length == 1:
-            for i in range(3):
-                for j in range(3):
-                    curr_dot = Dot(i + x_0, j + y_0)
-                    if self.out(curr_dot) and curr_dot not in ship.dots:
-                        self.board[x_0 + i][y_0 + j] = " - "
+            k, m = 3, 3
 
         if ship.length == 2:
             k, m = (4, 3) if ship.direction == "v" else (3, 4)
-            for i in range(k):
-                for j in range(m):
-                    curr_dot = Dot(i + x_0, j + y_0)
-                    if self.out(curr_dot) and curr_dot not in ship.dots:
-                        self.board[x_0 + i][y_0 + j] = " - "
 
         if ship.length == 3:
             k, m = (5, 3) if ship.direction == "v" else (3, 5)
-            for i in range(k):
-                for j in range(m):
-                    curr_dot = Dot(i + x_0, j + y_0)
-                    if self.out(curr_dot) and curr_dot not in ship.dots:
-                        self.board[x_0 + i][y_0 + j] = " - "
+
+        for i in range(k):
+            for j in range(m):
+                curr_dot = Dot(i + x_0, j + y_0)
+                if self.out(curr_dot) and curr_dot not in ship.dots:
+                    self.board[x_0 + i][y_0 + j] = " - "
 
     def display_board(self) -> None:
         """ Выводит доску в консоль в зависимости от параметра hid"""
@@ -150,7 +153,7 @@ class Board(Dot):
         return all([0 <= dot.x < len(self.board), \
                     0 <= dot.y < len(self.board[0])])
 
-    def shot(self, dot: object):
+    def shot(self, dot: object) -> str:
         """
         Делает выстрел по доске (если есть попытка выстрелить за пределы
          и в использованную точку, нужно выбрасывать исключения).
@@ -162,36 +165,8 @@ class Board(Dot):
             raise BoardShotUsedCage(dot.x, dot.y)
         if self.board[dot.x][dot.y] == " - " or self.board[dot.x][dot.y] == " O ":
             self.board[dot.x][dot.y] = " T "
+            res = "miss"
         if self.board[dot.x][dot.y] == " ■ ":
             self.board[dot.x][dot.y] = " X "
-
-
-#
-# кораблей: 1 корабль на 3 клетки, 2 корабля на 2 клетки, 4 корабля на одну клетку."
-try:
-    sh_one_cage_1 = Ship(1, Dot(0, 0), "h", 1)
-    sh_one_cage_2 = Ship(1, Dot(0, 5), "h", 1)
-    sh_one_cage_3 = Ship(1, Dot(5, 0), "h", 1)
-    sh_one_cage_4 = Ship(1, Dot(5, 4), "h", 1)
-
-    sh_two_cage_1 = Ship(2, Dot(0, 2), "v", 2)
-    sh_two_cage_2 = Ship(2, Dot(2, 5), "v", 2)
-
-    sh_three_cage_1 = Ship(3, Dot(3, 1), "h", 3)
-
-    list_ship = [sh_one_cage_1, sh_one_cage_2, sh_one_cage_3, sh_one_cage_4, sh_two_cage_1, sh_two_cage_2,
-                 sh_three_cage_1]
-
-    test_board = Board(list_ship, 1, False)
-
-    for ship in list_ship:
-        test_board.contour(ship)
-        test_board.add_ship(ship)
-except Exception as e:
-    print(e)
-else:
-    # test_board.display_board()
-    test_board.shot(Dot(3, 1))
-    test_board.shot(Dot(5, 1))
-    test_board.shot(Dot(5, 2))
-    test_board.display_board()
+            res = "hit"
+        return res

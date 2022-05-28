@@ -1,61 +1,93 @@
 # Внешняя логика игры
+import random
+
 from SeaBatle.sea_battle import Board, Ship, Dot
 
 
-class Player(Dot):
+class Player():
+    """Класс игрока в игру"""
+
     def __init__(self, own_board: object, enemy_board: object):
         self.own_board = own_board
         self.enemy_board = enemy_board
 
     @classmethod
     def ask(self):
-        """Cпрашивает игрока, в какую клетку он делает выстрел"""
         pass
-        # return map(int, input("Введите координаты: ").split())
 
-    def move(self):
+    def move(self) -> bool:
+        """Метод, который делает ход в игре"""
         res = None
-        """метод, который делает ход в игре"""
         try:
-            x, y = self.ask()
-            coord_for_shoot = Dot(x, y)
-            res = self.enemy_board.shot(coord_for_shoot)
+            grid_coordinate = self.ask()
+            res = self.enemy_board.shot(grid_coordinate)
         except Exception as e:
             print(e)
         return res == "hit"
 
 
+class AI(Player):
+    def ask(self):
+        """Cпрашивает игрока, в какую клетку он делает выстрел"""
+        return Dot(random.randint(0, 5), random.randint(0, 5))
+
+
+class User(Player):
+    def ask(self):
+        """Выбор случайной точки на доске"""
+        return Dot(map(int, input("Введите координаты клетки: ").split()))
+
+
 class Game:
-    def __init__(self, playe_user):
-        self.playe_user = playe_user
+    """Класс игры"""
+    SHIP_LENGTHS = [3, 2, 2, 1, 1, 1, 1]
+
+    def __init__(self):
+        self.user_board = self._random_board()
+        self.ai_board = self._random_board()
+
+        self.player_user = User(own_board=self.user_board, enemy_board=self.ai_board)
+        self.player_ai = AI(own_board=self.ai_board, enemy_board=self.user_board)
+
+    @classmethod
+    def _random_board(self):
+        """Метод генерирует случайную доску"""
+        flag = True
+        while flag:
+            new_board = Board(list_of_ships=[], number_of_live_ships=7)
+            for ship_length in self.SHIP_LENGTHS:
+                for _ in range(1000):
+                    try:
+                        curr_ship = Ship(length=ship_length, start_dot=Dot(random.randint(0, 5), random.randint(0, 5)),
+                                         direction=random.randint(0, 1),
+                                         number_of_lives=ship_length)
+                        new_board.add_ship(curr_ship)
+                    except Exception:
+                        continue
+                    else:
+                        new_board.list_of_ships.append(curr_ship)
+                        break
+            if len(new_board.list_of_ships) == 7:
+                flag = False
+        return new_board
+
+    def greet(self):
+        """Метод, который в консоли приветствует пользователя и рассказывает о формате ввода"""
+        pass
+
+    def loop(self):
+        """Метод с самим игровым циклом"""
+        pass
+
+    def start(self):
+        """Запуск игры"""
+        self.greet()
+        self.loop()
 
 
-# кораблей: 1 корабль на 3 клетки, 2 корабля на 2 клетки, 4 корабля на одну клетку."
-try:
-    sh_one_cage_1 = Ship(1, Dot(0, 0), "h", 1)
-    sh_one_cage_2 = Ship(1, Dot(0, 5), "h", 1)
-    sh_one_cage_3 = Ship(1, Dot(5, 0), "h", 1)
-    sh_one_cage_4 = Ship(1, Dot(5, 4), "h", 1)
+start = Game()
 
-    sh_two_cage_1 = Ship(2, Dot(0, 2), "v", 2)
-    sh_two_cage_2 = Ship(2, Dot(2, 5), "v", 2)
-
-    sh_three_cage_1 = Ship(3, Dot(3, 1), "h", 3)
-
-    list_ship_ai = [sh_one_cage_1, sh_one_cage_2, sh_one_cage_3, sh_one_cage_4, sh_two_cage_1, sh_two_cage_2,
-                    sh_three_cage_1]
-    list_ship_player = []
-
-    ai_board = Board(list_ship_ai, 1, False)
-    player_board = Board(list_ship_ai, 1, False)
-
-    for ship in list_ship_ai:
-        ai_board.contour(ship)
-        ai_board.add_ship(ship)
-
-    ai_board.display_board()
-
-    player = Player(own_board=player_board, enemy_board=ai_board)
-    print(player.move())
-except Exception as e:
-    print(e)
+start.user_board.hid == True
+start.user_board.display_board()
+print()
+start.ai_board.display_board()

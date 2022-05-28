@@ -21,6 +21,7 @@ class CheckCoordDort:
 
 
 class Dot:
+    """Класс точек на поле"""
     x = CheckCoordDort()
     y = CheckCoordDort()
 
@@ -33,12 +34,12 @@ class Dot:
 
 
 class Ship:
-    """"""
+    """Корабль на игровом поле"""
     MAX_NUM_SHIP_CELLS = 3
     MIN_NUM_SHIP_CELLS = 1
     MAX_NUM_SHIP_LIVES = 3
 
-    def __init__(self, length: int, start_dot: object, direction: str, number_of_lives: int):
+    def __init__(self, length: int, start_dot: object, direction: int, number_of_lives: int):
         self.validate_length_ship(length)
         self.validate_num_lives(number_of_lives)
         self.validate_direction_ship(direction)
@@ -62,8 +63,8 @@ class Ship:
 
     @classmethod
     def validate_direction_ship(cls, value: str) -> None:
-        """Проверяет значение направление корабля ('v' и 'h')"""
-        if value != "v" and value != "h":
+        """Проверяет значение направление корабля ('1' и '0')"""
+        if value != 1 and value != 0:
             raise ShipDirectionException(value)
 
     @property
@@ -71,7 +72,7 @@ class Ship:
         """Возвращает список всех точек коробля"""
         list_of_dots = []
         for i in range(self.length):
-            if self.direction == "v":
+            if self.direction:
                 list_of_dots.append(Dot(self.start_dot.x + i, self.start_dot.y))
             else:
                 list_of_dots.append(Dot(self.start_dot.x, self.start_dot.y + i))
@@ -88,10 +89,12 @@ class Ship:
 
 
 class Board(Dot):
+    """Игровая доска"""
     _hid = None
+    BOARD_SIZE = 6
 
-    def __init__(self, list_of_ships: list, number_of_live_ships: int, hid: bool):
-        self.board = [[" O "] * 6 for _ in range(6)]
+    def __init__(self, list_of_ships: list, number_of_live_ships: int, hid=False):
+        self.board = [[" O "] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)]
         self.list_of_ships = list_of_ships
         self.number_of_live_ships = number_of_live_ships
         self.hid = hid
@@ -113,6 +116,7 @@ class Board(Dot):
             if self.board[dot.x][dot.y] != " O ":
                 raise BoardOccupiedCage(dot.x, dot.y)
             self.board[dot.x][dot.y] = " ■ "
+            self.contour(ship)
 
     def contour(self, ship: object) -> None:
         """Обводит корабль по контуру"""
@@ -121,12 +125,8 @@ class Board(Dot):
 
         if ship.length == 1:
             k, m = 3, 3
-
-        if ship.length == 2:
-            k, m = (4, 3) if ship.direction == "v" else (3, 4)
-
-        if ship.length == 3:
-            k, m = (5, 3) if ship.direction == "v" else (3, 5)
+        else:
+            k, m = (ship.length + 2, 3) if ship.direction == 1 else (3, ship.length + 2)
 
         for i in range(k):
             for j in range(m):
@@ -154,10 +154,8 @@ class Board(Dot):
                     0 <= dot.y < len(self.board[0])])
 
     def shot(self, dot: object) -> str:
-        """
-        Делает выстрел по доске (если есть попытка выстрелить за пределы
+        """ Делает выстрел по доске (если есть попытка выстрелить за пределы
          и в использованную точку, нужно выбрасывать исключения).
-        :return:
         """
         if not self.out(dot):
             raise BoardOutException(dot.x, dot.y)

@@ -265,7 +265,7 @@ class Board(GameSettings):
                 for ship_dot in ship.dots:
                     if dot == ship_dot:
                         if ship.health == 1:
-                            print(f"Ты потопил {ship.name}!  - {dot.x, dot.y}")
+                            print(f"Потоплен {ship.name}!  - {dot.x, dot.y}")
                             ship.health -= 1
                             self.number_of_live_ships -= 1
                             self.list_of_ships.remove(ship)
@@ -414,10 +414,12 @@ class Game(GameSettings):
             self.user_board.display_board()
             print("^" * 26)
             print("Доска компьютера: ")
-            self.ai_board.hid = False
+            self.ai_board.hid = True
             self.ai_board.display_board()
 
             if turn_order == "user":
+                print()
+                print("Ваш ход.", end=" ")
                 if self.player_user.move():
                     if self.ai_board.number_of_live_ships == 0:
                         print("Вы выиграли!")
@@ -428,6 +430,8 @@ class Game(GameSettings):
                     turn_order = "ai"
                     continue
             if turn_order == "ai":
+                print()
+                print("Ход компьютера.", end="")
                 if self.player_ai.move():
                     if self.user_board.number_of_live_ships == 0:
                         print("Вы проиграли!")

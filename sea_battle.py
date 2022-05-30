@@ -2,35 +2,56 @@
 from SeaBatle.my_Exception import *
 
 
-class CheckCoordDort:
-    # data descriptor для класса Dot
+class Dot:
+    """Класс точек на поле"""
+    _x = None
+    _y = None
+    _sign = None
+
+    def __init__(self, x, y, sign=" O "):
+        self.x = x
+        self.y = y
+        self.sign = sign
+
     @classmethod
     def validate_coord(cls, value):
         if not isinstance(value, int):
             raise DortCordsException(value)
 
-    def __set_name__(self, owner, name):
-        self.name = '_' + name
-
-    def __get__(self, instance, owner):
-        return getattr(instance, self.name)
-
-    def __set__(self, instance, value):
-        self.validate_coord(value)
-        setattr(instance, self.name, value)
-
-
-class Dot:
-    """Класс точек на поле"""
-    x = CheckCoordDort()
-    y = CheckCoordDort()
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    @classmethod
+    def validate_sign(cls, sign):
+        if isinstance(sign, str) and sign not in [" X ", " O ", " T ", " - ", " ■ "]:
+            raise DortSignException(sign)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self.validate_coord(value)
+        self._x = value
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        self.validate_coord(value)
+        self._y = value
+
+    @property
+    def sign(self):
+        return self._sign
+
+    @sign.setter
+    def sign(self, value):
+        self.validate_sign(value)
+        self._sign = value
 
 
 class Ship:

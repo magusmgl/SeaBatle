@@ -15,18 +15,29 @@ class BoardOccupiedCage(BoardException):
     def __str__(self):
         return f"Точка с координатами ({self.message[0]},{self.message[1]}) занята."
 
+
 class BoardShotUsedCage(BoardException):
     def __str__(self):
         return f"В точка с координатами ({self.message[0]},{self.message[1]}) уже был сделан выстрел."
 
-class DortCordsException(Exception):
-    """ """
 
+class DortException(Exception):
     def __init__(self, *args):
         self.message = args[0] if args else None
 
+
+class DortCordsException(DortException):
+    """ """
+
     def __str__(self):
-        return f"Ошибка: '{self.message}' координата должна быть число от 0 до 5."
+        return f"Ошибка: '{self.message}' координаты задаются целыми числами от 0 до 5."
+
+
+class DortSignException(DortException):
+    """ """
+
+    def __str__(self):
+        return f"Ошибка: '{self.message}' неверный знак для точки."
 
 
 class ShipParamException(Exception):

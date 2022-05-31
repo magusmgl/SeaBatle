@@ -229,17 +229,17 @@ class Board(GameSettings):
 
     def display_board(self) -> None:
         """ Выводит доску в консоль в зависимости от параметра hid"""
-        print(" | ", end="")
-        print(" | ".join([str(i) for i in range(self.BOARD_SIZE)]), end=" |\n")
-        print("-" * 26)
+        board = f" | {' | '.join([str(i) for i in range(self.BOARD_SIZE)])} |\n"
+        board += f" {'-' * self.BOARD_SIZE * 4} \n"
         if self.hid:
             for i, row in enumerate(self.list_dots_on_board):
-                print(f"{i}|{'|'.join(list(map(lambda x: ' O ' if x.sign == ' ■ ' else x.sign, row)))}|")
-                print("-" * 26)
+                board += f"{i}|{'|'.join(list(map(lambda x: ' O ' if x.sign == ' ■ ' else x.sign, row)))}|\n"
+                board += f" {'-' * self.BOARD_SIZE * 4} \n"
         else:
             for i, row in enumerate(self.list_dots_on_board):
-                print(f"{i}|{'|'.join(list(map(lambda x: x.sign, row)))}|")
-                print("-" * 25)
+                board += f"{i}|{'|'.join(list(map(lambda x: x.sign, row)))}|\n"
+                board += f" {'-' * self.BOARD_SIZE * 4} \n"
+        print(board)
 
     def _out(self, dot: Dot) -> bool:
         """Для точки (объекта класса Dot) возвращает True,

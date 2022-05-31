@@ -239,7 +239,8 @@ class Board(GameSettings):
             for i, row in enumerate(self.list_dots_on_board):
                 board += f"{i}|{'|'.join(list(map(lambda x: x.sign, row)))}|\n"
                 board += f" {'-' * self.BOARD_SIZE * 4} \n"
-        print(board)
+        # print(board)
+        return board
 
     def _out(self, dot: Dot) -> bool:
         """Для точки (объекта класса Dot) возвращает True,
@@ -410,16 +411,17 @@ class Game(GameSettings):
         turn_order = "user"
 
         while True:
-            print("Ваша доска: ")
-            self.user_board.display_board()
-            print("^" * 26)
-            print("Доска компьютера: ")
+            draw_boards = "\nВаша доска:\n"
+            draw_boards += f"\n{self.user_board.display_board()}\n"
+            draw_boards += f" {'^'* self.BOARD_SIZE * 4} \n"
+            draw_boards += "\nДоска компьютера:\n"
             self.ai_board.hid = True
-            self.ai_board.display_board()
+            draw_boards += f"\n{self.ai_board.display_board()}\n"
+            print(draw_boards)
 
             if turn_order == "user":
                 print()
-                print("Ваш ход.", end=" ")
+                print("Ваш ход. ", end=" ")
                 if self.player_user.move():
                     if self.ai_board.number_of_live_ships == 0:
                         print("Вы выиграли!")
@@ -431,7 +433,7 @@ class Game(GameSettings):
                     continue
             if turn_order == "ai":
                 print()
-                print("Ход компьютера.", end="")
+                print("Ход компьютера. ", end="")
                 if self.player_ai.move():
                     if self.user_board.number_of_live_ships == 0:
                         print("Вы проиграли!")
